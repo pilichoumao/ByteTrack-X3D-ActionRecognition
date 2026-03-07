@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.pyc
+
+# IDE
+.idea/
+.vscode/
+
+# temp
+tmp/
+debug_clips/
+
+# outputs
+output/
+
+# input videos
+video/
+
+# ByteTrack runtime
+ByteTrack/pretrained/
+ByteTrack/build/
+ByteTrack/YOLOX_outputs/
+
+# mmaction runtime
+mmaction2/checkpoints/
+
+# OS
+.DS_Store
