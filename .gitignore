@@ -20,6 +20,8 @@ video/
 ByteTrack/pretrained/
 ByteTrack/build/
 ByteTrack/YOLOX_outputs/
+mmaction2/demo.mp4
+ByteTrack/demo.mp4
 
 # mmaction runtime
 mmaction2/checkpoints/
