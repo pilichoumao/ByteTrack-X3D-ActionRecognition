@@ -27,6 +27,20 @@ CLIP_LEN = 16
 CLIP_STRIDE = 8
 EXPAND_RATIO = 1.2
 
+# X3D_CONFIG = os.path.join(
+#     MMACTION_DIR,
+#     "configs",
+#     "recognition",
+#     "x3d",
+#     "x3d_m_16x5x1_facebook-kinetics400-rgb.py"
+# )
+#
+# X3D_CKPT = os.path.join(
+#     MMACTION_DIR,
+#     "checkpoints",
+#     "x3d_m_16x5x1_facebook-kinetics400-rgb_20201027-3f42382a.pth"
+# )
+
 X3D_CONFIG = os.path.join(
     MMACTION_DIR,
     "configs",

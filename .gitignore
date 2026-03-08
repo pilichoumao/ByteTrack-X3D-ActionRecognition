@@ -28,3 +28,6 @@ mmaction2/checkpoints/
 
 # OS
 .DS_Store
+
+# .pdf
+*.pdf

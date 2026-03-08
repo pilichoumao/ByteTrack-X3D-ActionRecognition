@@ -122,14 +122,13 @@ def main():
             if not clip:
                 continue
 
-            temp_video_path = os.path.join(TMP_DIR, f"track_{track_id}.mp4")
+
 
             sync_cuda()
             t2 = time.perf_counter()
-            pred = action_model.infer_clip(
-                clip,
-                temp_video_path=temp_video_path
-            )
+
+            pred = action_model.infer_clip(clip)
+
             sync_cuda()
             t3 = time.perf_counter()
 
