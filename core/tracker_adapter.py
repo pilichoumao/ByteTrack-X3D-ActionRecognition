@@ -2,6 +2,7 @@ import os
 import sys
 import cv2
 import torch
+import torch.backends.cudnn as cudnn
 from types import SimpleNamespace
 
 from config import BT_EXP_FILE, BT_CKPT
@@ -15,14 +16,18 @@ if BYTE_TRACK_DIR not in sys.path:
 
 from yolox.exp import get_exp
 from yolox.data.data_augment import preproc
-from yolox.utils import postprocess
+from yolox.utils import postprocess, fuse_model
 from yolox.tracker.byte_tracker import BYTETracker
 
 
 class ByteTrackAdapter:
     def __init__(self):
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
+        self.fp16 = (self.device == "cuda")
         print("ByteTrack device =", self.device)
+
+        if self.device == "cuda":
+            cudnn.benchmark = True
 
         self.exp = get_exp(BT_EXP_FILE, None)
 
@@ -31,6 +36,13 @@ class ByteTrackAdapter:
         self.model.load_state_dict(ckpt["model"])
         self.model.to(self.device)
         self.model.eval()
+
+        # fuse conv + bn
+        self.model = fuse_model(self.model)
+
+        # FP16
+        if self.fp16:
+            self.model.half()
 
         args = SimpleNamespace(
             track_thresh=0.5,
@@ -44,7 +56,12 @@ class ByteTrackAdapter:
 
     def update(self, frame):
         img, ratio = preproc(frame, self.exp.test_size, (0, 0, 0), (1, 1, 1))
-        img_tensor = torch.from_numpy(img).unsqueeze(0).float().to(self.device)
+        img_tensor = torch.from_numpy(img).unsqueeze(0).to(self.device)
+
+        if self.fp16:
+            img_tensor = img_tensor.half()
+        else:
+            img_tensor = img_tensor.float()
 
         with torch.no_grad():
             outputs = self.model(img_tensor)

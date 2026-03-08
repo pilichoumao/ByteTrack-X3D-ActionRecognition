@@ -9,8 +9,14 @@ class ClipBufferManager:
         self.expand_ratio = expand_ratio
         self.crop_size = crop_size
 
+        # track_id -> deque([{"frame_id": int, "crop": np.ndarray}, ...])
         self.buffers = {}
+
+        # track_id -> 上一次做动作识别时，对应的最新 frame_id
         self.last_infer_frame = {}
+
+        # track_id -> 最近一次被 update() 的 frame_id
+        self.last_seen_frame = {}
 
     def update(self, track_id, frame, bbox, frame_id):
         crop = self.crop_person(frame, bbox)
@@ -24,6 +30,8 @@ class ClipBufferManager:
             "frame_id": frame_id,
             "crop": crop
         })
+
+        self.last_seen_frame[track_id] = frame_id
 
     def get_ready_track_ids(self):
         ready_ids = []
@@ -41,9 +49,44 @@ class ClipBufferManager:
         return ready_ids
 
     def get_clip(self, track_id):
+        if track_id not in self.buffers:
+            return []
+
         buf = self.buffers[track_id]
+        if len(buf) == 0:
+            return []
+
         self.last_infer_frame[track_id] = buf[-1]["frame_id"]
-        return [item["crop"] for item in buf]
+
+        # 返回副本，避免外部误改内部缓存结构
+        return [item["crop"].copy() for item in buf]
+
+    def remove_track(self, track_id):
+        self.buffers.pop(track_id, None)
+        self.last_infer_frame.pop(track_id, None)
+        self.last_seen_frame.pop(track_id, None)
+
+    def cleanup_expired_tracks(self, current_frame_id, max_missing_frames=60):
+        """
+        清理长时间未出现的 track，避免无效 ID 持续堆积。
+
+        参数:
+            current_frame_id: 当前处理到的视频帧号
+            max_missing_frames: 若某个 track 超过这么多帧未出现，则删除
+
+        返回:
+            expired_ids: 本次被清理掉的 track_id 列表
+        """
+        expired_ids = []
+
+        for track_id, last_seen in list(self.last_seen_frame.items()):
+            if current_frame_id - last_seen > max_missing_frames:
+                expired_ids.append(track_id)
+
+        for track_id in expired_ids:
+            self.remove_track(track_id)
+
+        return expired_ids
 
     def crop_person(self, frame, bbox):
         h, w = frame.shape[:2]
