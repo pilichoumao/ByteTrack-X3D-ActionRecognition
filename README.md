@@ -1,5 +1,4 @@
 
-
 # ByteTrack-X3D-ActionRecognition
 
 ![Python](https://img.shields.io/badge/Python-3.8-blue)
@@ -19,15 +18,16 @@ This project combines **multi-object tracking** and **video action recognition**
 Video Stream
       │
       ▼
-ByteTrack (Multi-object Tracking)
+ByteTrack
+(Multi-object Tracking)
       │
       ▼
 Clip Buffer Manager
-(Per-track Sliding Window)
+(Per-track Sliding Window Buffer)
       │
       ▼
 X3D Action Recognition
-(MMAction2)
+(In-memory clip inference)
       │
       ▼
 Visualization
@@ -39,8 +39,9 @@ Visualization
 ## ✨ Features
 
 * Multi-person tracking using **ByteTrack**
-* Per-person action recognition using **X3D**
-* Sliding-window clip buffer
+* Per-person action recognition using **X3D (MMAction2)**
+* **Track-based sliding window clip buffer**
+* **In-memory inference (no temporary video files)**
 * Modular pipeline design
 * Easy to extend to other action recognition models
 
@@ -52,12 +53,12 @@ Visualization
 ActionRecognition
 │
 ├── core
-│   ├── action_recognizer.py
-│   ├── tracker_adapter.py
-│   ├── clip_buffer.py
-│   ├── visualizer.py
-│   ├── pipeline_demo.py
-│   └── config.py
+│   ├── action_recognizer.py     # X3D inference wrapper
+│   ├── tracker_adapter.py       # ByteTrack adapter
+│   ├── clip_buffer.py           # per-track clip buffer
+│   ├── visualizer.py            # drawing bounding boxes
+│   ├── pipeline_demo.py         # main pipeline
+│   └── config.py                # configuration
 │
 ├── ByteTrack
 │
@@ -84,13 +85,14 @@ CUDA 11+
 PyTorch
 ```
 
-Install dependencies:
+### Dependencies
 
-```bash
-pip install torch torchvision
-pip install opencv-python
-pip install mmengine mmcv-lite
-```
+This project relies on the dependencies required by the following two frameworks:
+
+* **ByteTrack**
+* **MMAction2**
+
+Please install the dependencies according to the official installation guides of these projects.
 
 ---
 
@@ -146,37 +148,7 @@ frame 247 track 1 action = bending metal score = 0.43
 * Uses **Kinetics-400** pretrained labels
 * No temporal smoothing yet
 * Predictions may fluctuate between frames
-* Temporary video clips are still used for inference
-
----
-
-## 🛠 TODO
-
-### Pipeline
-
-* [ ] remove temporary video files
-* [ ] switch to in-memory inference
-* [ ] add temporal smoothing
-* [ ] add action confidence filtering
-
-### Performance
-
-* [ ] async inference
-* [ ] batch inference for multiple tracks
-* [ ] optimize latency
-
-### Models
-
-* [ ] support SlowFast
-* [ ] support VideoMAE
-* [ ] support pose-based action recognition
-
-### Features
-
-* [ ] webcam support
-* [ ] RTSP stream support
-* [ ] REST API
-* [ ] web visualization dashboard
+* Action recognition is performed directly on **in-memory clips**
 
 ---
 
@@ -194,5 +166,5 @@ This project is built upon the following open-source projects:
 
 This project follows the licenses of the included open-source projects.
 
-
-
+```
+```

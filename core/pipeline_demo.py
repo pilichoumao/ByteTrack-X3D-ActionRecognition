@@ -2,9 +2,10 @@ import os
 import cv2
 import time
 import statistics
+import argparse
 from collections import deque, Counter
 
-from config import INPUT_VIDEO, OUTPUT_VIDEO, TMP_DIR, OUTPUT_DIR
+from config import TMP_DIR, OUTPUT_DIR
 from tracker_adapter import ByteTrackAdapter
 from clip_buffer import ClipBufferManager
 from action_recognizer import ActionRecognizer
@@ -33,12 +34,42 @@ def print_stats(name, data):
         f"max={max(data) * 1000:.2f} ms"
     )
 
+def parse_args():
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument(
+        "--video",
+        type=str,
+        required=True,
+        help="input video path"
+    )
+
+    parser.add_argument(
+        "--suffix",
+        type=str,
+        default="_track_x3d",
+        help="output filename suffix"
+    )
+
+    return parser.parse_args()
 
 def main():
+    args = parse_args()
+
+    input_video = args.video
+
     os.makedirs(TMP_DIR, exist_ok=True)
     os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-    cap = cv2.VideoCapture(INPUT_VIDEO)
+    video_name = os.path.basename(input_video)
+    name, ext = os.path.splitext(video_name)
+
+    output_video = os.path.join(
+        OUTPUT_DIR,
+        name + args.suffix + ".mp4"
+    )
+
+    cap = cv2.VideoCapture(input_video)
     if not cap.isOpened():
         print("ERROR: cannot open video")
         return
@@ -47,13 +78,13 @@ def main():
     height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
     fps = cap.get(cv2.CAP_PROP_FPS)
 
-    print("video:", INPUT_VIDEO)
+    print("video:", input_video)
     print("size:", width, height)
     print("fps:", fps)
     print("tmp dir:", TMP_DIR)
 
     writer = cv2.VideoWriter(
-        OUTPUT_VIDEO,
+        output_video,
         cv2.VideoWriter_fourcc(*"mp4v"),
         fps,
         (width, height)
@@ -202,7 +233,7 @@ def main():
     writer.release()
 
     print("finished")
-    print("output:", OUTPUT_VIDEO)
+    print("output:", output_video)
 
     print("\n===== Timing Summary =====")
     print_stats("YOLO+ByteTrack per frame", track_time_list)

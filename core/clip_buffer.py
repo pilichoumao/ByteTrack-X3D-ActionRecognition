@@ -3,7 +3,7 @@ import cv2
 
 
 class ClipBufferManager:
-    def __init__(self, clip_len=16, stride=8, expand_ratio=1.2, crop_size=224):
+    def __init__(self, clip_len=60, stride=30, expand_ratio=1.3, crop_size=224):
         self.clip_len = clip_len
         self.stride = stride
         self.expand_ratio = expand_ratio
@@ -58,8 +58,15 @@ class ClipBufferManager:
 
         self.last_infer_frame[track_id] = buf[-1]["frame_id"]
 
-        # 返回副本，避免外部误改内部缓存结构
-        return [item["crop"].copy() for item in buf]
+        items = list(buf)
+
+        # 从最近60帧中均匀采样16帧给X3D
+        num_samples = 16
+        if len(items) <= num_samples:
+            return [item["crop"].copy() for item in items]
+
+        indices = [round(i * (len(items) - 1) / (num_samples - 1)) for i in range(num_samples)]
+        return [items[i]["crop"].copy() for i in indices]
 
     def remove_track(self, track_id):
         self.buffers.pop(track_id, None)

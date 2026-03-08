@@ -7,7 +7,6 @@ MMACTION_DIR = os.path.join(ROOT, "mmaction2")
 VIDEO_DIR = os.path.join(ROOT, "video")
 CORE_DIR = os.path.join(ROOT, "core")
 
-INPUT_VIDEO = os.path.join(VIDEO_DIR, "demo.mp4")
 
 BT_EXP_FILE = os.path.join(
     BYTE_TRACK_DIR,
@@ -23,9 +22,9 @@ BT_CKPT = os.path.join(
     "bytetrack_x_mot17.pth.tar"
 )
 
-CLIP_LEN = 16
-CLIP_STRIDE = 8
-EXPAND_RATIO = 1.2
+# CLIP_LEN = 16
+# CLIP_STRIDE = 8
+# EXPAND_RATIO = 1.2
 
 # X3D_CONFIG = os.path.join(
 #     MMACTION_DIR,
@@ -65,9 +64,11 @@ X3D_LABEL_MAP = os.path.join(
 
 TMP_DIR = os.path.join(ROOT, "tmp")
 
+# INPUT_VIDEO = os.path.join(VIDEO_DIR, "demo.mp4")
+
 OUTPUT_DIR = os.path.join(ROOT, "output")
 
-OUTPUT_VIDEO = os.path.join(
-    OUTPUT_DIR,
-    "output_track_x3d.mp4"
-)
+# OUTPUT_VIDEO = os.path.join(
+#     OUTPUT_DIR,
+#     "output_track_x3d.mp4"
+# )

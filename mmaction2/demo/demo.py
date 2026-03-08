@@ -12,10 +12,10 @@ from mmaction.visualization import ActionVisualizer
 
 def parse_args():
     parser = argparse.ArgumentParser(description='MMAction2 demo')
-    parser.add_argument('config', help='test config file path')
-    parser.add_argument('checkpoint', help='checkpoint file/url')
-    parser.add_argument('video', help='video file/url or rawframes directory')
-    parser.add_argument('label', help='label file')
+    parser.add_argument('config', default='E:/ActionRecognition/mmaction2/configs/recognition/x3d/x3d_s_13x6x1_facebook-kinetics400-rgb.py',help='test config file path')
+    parser.add_argument('checkpoint', default='E:/ActionRecognition/mmaction2/checkpoints/x3d_s_13x6x1_facebook-kinetics400-rgb_20201027-623825a0.pt', help='checkpoint file/url')
+    parser.add_argument('video',default='E:/ActionRecognition/video/demo1.mp4 ^', help='video file/url or rawframes directory')
+    parser.add_argument('label',default='E:/ActionRecognition/mmaction2/tools/data/kinetics/label_map_k400.txt', help='label file')
     parser.add_argument(
         '--cfg-options',
         nargs='+',
@@ -48,7 +48,7 @@ def parse_args():
         help='Target resolution (w, h) for resizing the frames when using a '
         'video as input. If either dimension is set to -1, the frames are '
         'resized by keeping the existing aspect ratio')
-    parser.add_argument('--out-filename', default=None, help='output filename')
+    parser.add_argument('--out-filename', default='demo1.mp4', help='output filename')
     args = parser.parse_args()
     return args
 
