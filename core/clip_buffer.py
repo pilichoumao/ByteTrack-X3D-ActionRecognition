@@ -3,11 +3,19 @@ import cv2
 
 
 class ClipBufferManager:
-    def __init__(self, clip_len=60, stride=30, expand_ratio=1.3, crop_size=224):
+    def __init__(
+        self,
+        clip_len=60,
+        stride=30,
+        expand_ratio=1.3,
+        crop_size=224,
+        num_samples=16
+    ):
         self.clip_len = clip_len
         self.stride = stride
         self.expand_ratio = expand_ratio
         self.crop_size = crop_size
+        self.num_samples = max(1, int(num_samples))
 
         # track_id -> deque([{"frame_id": int, "crop": np.ndarray}, ...])
         self.buffers = {}
@@ -61,11 +69,16 @@ class ClipBufferManager:
         items = list(buf)
 
         # 从最近60帧中均匀采样16帧给X3D
-        num_samples = 16
-        if len(items) <= num_samples:
+        if len(items) <= self.num_samples:
             return [item["crop"].copy() for item in items]
 
-        indices = [round(i * (len(items) - 1) / (num_samples - 1)) for i in range(num_samples)]
+        if self.num_samples == 1:
+            return [items[-1]["crop"].copy()]
+
+        indices = [
+            round(i * (len(items) - 1) / (self.num_samples - 1))
+            for i in range(self.num_samples)
+        ]
         return [items[i]["crop"].copy() for i in indices]
 
     def remove_track(self, track_id):

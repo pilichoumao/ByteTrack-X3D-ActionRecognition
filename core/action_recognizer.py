@@ -6,7 +6,7 @@ import cv2
 import numpy as np
 import torch
 
-from config import X3D_CONFIG, X3D_CKPT, X3D_LABEL_MAP
+from config import ACTION_MODELS, DEFAULT_ACTION_MODEL
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 ROOT_DIR = os.path.dirname(CURRENT_DIR)
@@ -20,25 +20,38 @@ from mmengine.dataset import Compose
 
 
 class ActionRecognizer:
-    def __init__(self):
+    def __init__(self, model_name=DEFAULT_ACTION_MODEL):
+        if model_name not in ACTION_MODELS:
+            raise ValueError(
+                f"Unknown action model '{model_name}'. "
+                f"Available: {sorted(ACTION_MODELS.keys())}"
+            )
+
+        model_cfg = ACTION_MODELS[model_name]
+        self.model_name = model_name
+        self.model_config_path = model_cfg["config"]
+        self.model_ckpt_path = model_cfg["ckpt"]
+        self.label_map_path = model_cfg["label_map"]
+
         self.device = "cuda:0" if torch.cuda.is_available() else "cpu"
-        print("X3D device =", self.device)
+        print("Action device =", self.device)
+        print("Action model =", self.model_name)
 
         self.model = init_recognizer(
-            X3D_CONFIG,
-            X3D_CKPT,
+            self.model_config_path,
+            self.model_ckpt_path,
             device=self.device
         )
 
         self.labels = []
-        with open(X3D_LABEL_MAP, "r", encoding="utf-8") as f:
+        with open(self.label_map_path, "r", encoding="utf-8") as f:
             for line in f:
                 self.labels.append(line.strip())
 
         # 基于原 test_pipeline 构建“内存 clip 推理”专用 pipeline
         self.test_pipeline, self.color_format = self._build_array_test_pipeline()
 
-        print("X3D array inference pipeline ready")
+        print("Action array inference pipeline ready")
         print("color format =", self.color_format)
 
     def _build_array_test_pipeline(self):

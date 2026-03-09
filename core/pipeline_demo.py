@@ -5,7 +5,7 @@ import statistics
 import argparse
 from collections import deque, Counter
 
-from config import TMP_DIR, OUTPUT_DIR
+from config import TMP_DIR, OUTPUT_DIR, ACTION_MODELS, DEFAULT_ACTION_MODEL
 from tracker_adapter import ByteTrackAdapter
 from clip_buffer import ClipBufferManager
 from action_recognizer import ActionRecognizer
@@ -51,12 +51,21 @@ def parse_args():
         help="output filename suffix"
     )
 
+    parser.add_argument(
+        "--action-model",
+        type=str,
+        default=DEFAULT_ACTION_MODEL,
+        choices=sorted(ACTION_MODELS.keys()),
+        help="action model key defined in core/config.py"
+    )
+
     return parser.parse_args()
 
 def main():
     args = parse_args()
 
     input_video = args.video
+    model_profile = ACTION_MODELS[args.action_model]
 
     os.makedirs(TMP_DIR, exist_ok=True)
     os.makedirs(OUTPUT_DIR, exist_ok=True)
@@ -81,6 +90,13 @@ def main():
     print("video:", input_video)
     print("size:", width, height)
     print("fps:", fps)
+    print("action model:", args.action_model)
+    print(
+        "clip params:",
+        f"clip_len={model_profile['clip_len']},",
+        f"stride={model_profile['stride']},",
+        f"num_samples={model_profile['num_samples']}"
+    )
     print("tmp dir:", TMP_DIR)
 
     writer = cv2.VideoWriter(
@@ -92,12 +108,13 @@ def main():
 
     tracker = ByteTrackAdapter()
     clip_manager = ClipBufferManager(
-        clip_len=16,
-        stride=8,
+        clip_len=model_profile["clip_len"],
+        stride=model_profile["stride"],
         expand_ratio=1.2,
-        crop_size=224
+        crop_size=224,
+        num_samples=model_profile["num_samples"]
     )
-    action_model = ActionRecognizer()
+    action_model = ActionRecognizer(model_name=args.action_model)
 
     action_results = {}
     action_history = {}

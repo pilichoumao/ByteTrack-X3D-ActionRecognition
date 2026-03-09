@@ -22,45 +22,65 @@ BT_CKPT = os.path.join(
     "bytetrack_x_mot17.pth.tar"
 )
 
-# CLIP_LEN = 16
-# CLIP_STRIDE = 8
-# EXPAND_RATIO = 1.2
+# Action model registry.
+# Keep defaults aligned with current behavior (X3D-S).
+ACTION_MODELS = {
+    "x3d_s": {
+        "config": os.path.join(
+            MMACTION_DIR,
+            "configs",
+            "recognition",
+            "x3d",
+            "x3d_s_13x6x1_facebook-kinetics400-rgb.py"
+        ),
+        "ckpt": os.path.join(
+            MMACTION_DIR,
+            "checkpoints",
+            "x3d_s_13x6x1_facebook-kinetics400-rgb_20201027-623825a0.pth"
+        ),
+        "label_map": os.path.join(
+            MMACTION_DIR,
+            "tools",
+            "data",
+            "kinetics",
+            "label_map_k400.txt"
+        ),
+        "num_samples": 16,
+        "clip_len": 16,
+        "stride": 8,
+    },
+    "tsm_r50_1x1x8": {
+        "config": os.path.join(
+            MMACTION_DIR,
+            "configs",
+            "recognition",
+            "tsm",
+            "tsm_imagenet-pretrained-r50_8xb16-1x1x8-50e_kinetics400-rgb.py"
+        ),
+        "ckpt": os.path.join(
+            MMACTION_DIR,
+            "checkpoints",
+            "tsm_imagenet-pretrained-r50_8xb16-1x1x8-50e_kinetics400-rgb_20220831-64d69186.pth"
+        ),
+        "label_map": os.path.join(
+            MMACTION_DIR,
+            "tools",
+            "data",
+            "kinetics",
+            "label_map_k400.txt"
+        ),
+        "num_samples": 8,
+        "clip_len": 16,
+        "stride": 8,
+    },
+}
 
-# X3D_CONFIG = os.path.join(
-#     MMACTION_DIR,
-#     "configs",
-#     "recognition",
-#     "x3d",
-#     "x3d_m_16x5x1_facebook-kinetics400-rgb.py"
-# )
-#
-# X3D_CKPT = os.path.join(
-#     MMACTION_DIR,
-#     "checkpoints",
-#     "x3d_m_16x5x1_facebook-kinetics400-rgb_20201027-3f42382a.pth"
-# )
+DEFAULT_ACTION_MODEL = "x3d_s"
 
-X3D_CONFIG = os.path.join(
-    MMACTION_DIR,
-    "configs",
-    "recognition",
-    "x3d",
-    "x3d_s_13x6x1_facebook-kinetics400-rgb.py"
-)
-
-X3D_CKPT = os.path.join(
-    MMACTION_DIR,
-    "checkpoints",
-    "x3d_s_13x6x1_facebook-kinetics400-rgb_20201027-623825a0.pth"
-)
-
-X3D_LABEL_MAP = os.path.join(
-    MMACTION_DIR,
-    "tools",
-    "data",
-    "kinetics",
-    "label_map_k400.txt"
-)
+# Backward-compatible aliases used by current pipeline code.
+X3D_CONFIG = ACTION_MODELS["x3d_s"]["config"]
+X3D_CKPT = ACTION_MODELS["x3d_s"]["ckpt"]
+X3D_LABEL_MAP = ACTION_MODELS["x3d_s"]["label_map"]
 
 TMP_DIR = os.path.join(ROOT, "tmp")
 
